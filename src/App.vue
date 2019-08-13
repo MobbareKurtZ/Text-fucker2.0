@@ -5,11 +5,18 @@
       <h3>Floop your text up</h3>
       <div v-if="this.state == 'lang'">
         <select v-model="startLang">
-          <option disabled value>Choose language</option>
+          <option disabled value>Choose input language</option>
           <option :value="'sv'">Swedish</option>
           <option :value="'en'">English</option>
+          <option v-for="lang in langs" :key="lang.id" :value="lang.id">{{lang.name}}</option>
         </select>
-        <button @click="state = 'text'">Select</button>
+        <select v-model="endLang">
+          <option disabled value>Choose output language</option>
+          <option :value="'sv'">Swedish</option>
+          <option :value="'en'">English</option>
+          <option v-for="lang in langs" :key="lang.id" :value="lang.id">{{lang.name}}</option>
+        </select>
+        <button v-if='startLang != "" && endLang != ""' @click="state = 'text'">Select</button>
       </div>
       <div v-if="this.state == 'text'">
         <section class="settings">
@@ -17,28 +24,44 @@
           <button @click="runTranslations()">Floop</button>
           <h4>Floop level: {{this.level}}</h4>
           <div class="slider-container">
-            <input v-model="level" type="range" min="1" max="20" class="slider">
+            <input v-model="level" type="range" min="1" max="20" class="slider" />
           </div>
-          <button :class="{enabled: this.extreme}" @click="extremeMode()" class="extreme">ExXTREME FL00P</button>
         </section>
         <section class="result">
           <h4 v-if="this.curLang">{{this.curLang.name}}</h4>
           <textarea placeholder="Flooped text..." readonly v-model="this.result"></textarea>
           <button v-if="this.done" @click="reRun()">Needs moar floop!</button>
         </section>
-        <ul>
-          <li
-            :class="{disabled: !lang.enabled}"
-            v-for="lang in this.langs"
-            :key="lang.id"
-          >{{lang.name}}</li>
-        </ul>
+        <button @click="showLangs = true">Language settings</button>
+        <div class="overlay" v-if="showLangs"></div>
+        <section v-if="showLangs" class="lang-settings">
+          <button @click="showLangs = false" class="close">Close</button>
+          <span>
+            <h2>Language settings</h2>
+          </span>
+          <ul>
+            <li v-for="lang in langs" :key="lang.id">
+              <input type="checkbox" :id="lang.id" v-model="lang.enabled" />
+              <label :for="lang.id">{{lang.name}}</label>
+            </li>
+          </ul>
+          <div class="lang-btns">
+            <button
+              :class="{enabled: this.extreme}"
+              @click="extremeMode()"
+              class="extreme"
+            >ExXTREME FL00P</button>
+            <button @click="selLangs()">Select all</button>
+            <button @click="deselLangs()">Deselect all</button>
+          </div>
+        </section>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import _ from "lodash";
 export default {
   name: "app",
   data() {
@@ -53,21 +76,9 @@ export default {
         },
         {
           enabled: true,
-          name: "Irish",
-          extreme: false,
-          id: "ga"
-        },
-        {
-          enabled: true,
           name: "Albanian",
           extreme: false,
           id: "sq"
-        },
-        {
-          enabled: true,
-          name: "Italian",
-          extreme: false,
-          id: "it"
         },
         {
           enabled: true,
@@ -77,21 +88,9 @@ export default {
         },
         {
           enabled: true,
-          name: "Japanese",
-          extreme: true,
-          id: "ja"
-        },
-        {
-          enabled: true,
           name: "Azerbaijani",
           extreme: true,
           id: "az"
-        },
-        {
-          enabled: true,
-          name: "Kannada",
-          extreme: true,
-          id: "kn"
         },
         {
           enabled: true,
@@ -101,9 +100,9 @@ export default {
         },
         {
           enabled: true,
-          name: "Korean",
+          name: "Belarusian",
           extreme: true,
-          id: "ko"
+          id: "be"
         },
         {
           enabled: true,
@@ -113,45 +112,15 @@ export default {
         },
         {
           enabled: true,
-          name: "Latin",
-          extreme: false,
-          id: "la"
-        },
-        {
-          enabled: true,
-          name: "Belarusian",
-          extreme: true,
-          id: "be"
-        },
-        {
-          enabled: true,
-          name: "Latvian",
-          extreme: false,
-          id: "lv"
-        },
-        {
-          enabled: true,
           name: "Bulgarian",
           extreme: false,
           id: "bg"
         },
         {
           enabled: true,
-          name: "Lithuanian",
-          extreme: false,
-          id: "lt"
-        },
-        {
-          enabled: true,
           name: "Catalan",
           extreme: false,
           id: "ca"
-        },
-        {
-          enabled: true,
-          name: "Macedonian",
-          extreme: false,
-          id: "mk"
         },
         {
           enabled: true,
@@ -167,6 +136,186 @@ export default {
         },
         {
           enabled: true,
+          name: "Croatian",
+          extreme: false,
+          id: "hr"
+        },
+        {
+          enabled: true,
+          name: "Czech",
+          extreme: false,
+          id: "cs"
+        },
+        {
+          enabled: true,
+          name: "Danish",
+          extreme: false,
+          id: "da"
+        },
+        {
+          enabled: true,
+          name: "Dutch",
+          extreme: false,
+          id: "nl"
+        },
+        {
+          enabled: true,
+          name: "English",
+          extreme: false,
+          id: "en"
+        },
+        {
+          enabled: true,
+          name: "Esperanto",
+          extreme: false,
+          id: "eo"
+        },
+        {
+          enabled: true,
+          name: "Estonian",
+          extreme: false,
+          id: "et"
+        },
+        {
+          enabled: true,
+          name: "Filipino",
+          extreme: true,
+          id: "tl"
+        },
+        {
+          enabled: true,
+          name: "Finnish",
+          extreme: true,
+          id: "fi"
+        },
+        {
+          enabled: true,
+          name: "French",
+          extreme: false,
+          id: "fr"
+        },
+        {
+          enabled: true,
+          name: "Galician",
+          extreme: false,
+          id: "gl"
+        },
+        {
+          enabled: true,
+          name: "Georgian",
+          extreme: false,
+          id: "ka"
+        },
+        {
+          enabled: true,
+          name: "German",
+          extreme: false,
+          id: "de"
+        },
+        {
+          enabled: true,
+          name: "Greek",
+          extreme: true,
+          id: "el"
+        },
+        {
+          enabled: true,
+          name: "Gujarati",
+          extreme: true,
+          id: "gu"
+        },
+        {
+          enabled: false,
+          name: "Haitian Creole",
+          extreme: true,
+          id: "ht"
+        },
+        {
+          enabled: false,
+          name: "Hebrew",
+          extreme: true,
+          id: "iw"
+        },
+        {
+          enabled: true,
+          name: "Hindi",
+          extreme: true,
+          id: "hi"
+        },
+        {
+          enabled: true,
+          name: "Hungarian",
+          extreme: false,
+          id: "hu"
+        },
+        {
+          enabled: false,
+          name: "Icelandic",
+          extreme: true,
+          id: "is"
+        },
+        {
+          enabled: true,
+          name: "Indonesian",
+          extreme: false,
+          id: "id"
+        },
+        {
+          enabled: true,
+          name: "Irish",
+          extreme: false,
+          id: "ga"
+        },
+        {
+          enabled: true,
+          name: "Italian",
+          extreme: false,
+          id: "it"
+        },
+        {
+          enabled: true,
+          name: "Japanese",
+          extreme: true,
+          id: "ja"
+        },
+        {
+          enabled: true,
+          name: "Kannada",
+          extreme: true,
+          id: "kn"
+        },
+        {
+          enabled: true,
+          name: "Korean",
+          extreme: true,
+          id: "ko"
+        },
+        {
+          enabled: true,
+          name: "Latin",
+          extreme: false,
+          id: "la"
+        },
+        {
+          enabled: true,
+          name: "Latvian",
+          extreme: false,
+          id: "lv"
+        },
+        {
+          enabled: true,
+          name: "Lithuanian",
+          extreme: false,
+          id: "lt"
+        },
+        {
+          enabled: true,
+          name: "Macedonian",
+          extreme: false,
+          id: "mk"
+        },
+        {
+          enabled: true,
           name: "Malay",
           extreme: true,
           id: "ms"
@@ -178,22 +327,10 @@ export default {
           id: "mt"
         },
         {
-          enabled: true,
-          name: "Croatian",
-          extreme: false,
-          id: "hr"
-        },
-        {
-          enabled: true,
+          enabled: false,
           name: "Norwegian",
           extreme: false,
           id: "no"
-        },
-        {
-          enabled: true,
-          name: "Czech",
-          extreme: false,
-          id: "cs"
         },
         {
           enabled: true,
@@ -203,21 +340,9 @@ export default {
         },
         {
           enabled: true,
-          name: "Danish",
-          extreme: false,
-          id: "da"
-        },
-        {
-          enabled: true,
           name: "Polish",
           extreme: false,
           id: "pl"
-        },
-        {
-          enabled: true,
-          name: "Dutch",
-          extreme: false,
-          id: "nl"
         },
         {
           enabled: true,
@@ -226,22 +351,10 @@ export default {
           id: "pt"
         },
         {
-          enabled: true,
-          name: "English",
-          extreme: false,
-          id: "en"
-        },
-        {
-          enabled: true,
+          enabled: false,
           name: "Romanian",
           extreme: false,
           id: "ro"
-        },
-        {
-          enabled: true,
-          name: "Esperanto",
-          extreme: false,
-          id: "eo"
         },
         {
           enabled: true,
@@ -251,21 +364,9 @@ export default {
         },
         {
           enabled: true,
-          name: "Estonian",
-          extreme: false,
-          id: "et"
-        },
-        {
-          enabled: true,
           name: "Serbian",
           extreme: false,
           id: "sr"
-        },
-        {
-          enabled: true,
-          name: "Filipino",
-          extreme: true,
-          id: "tl"
         },
         {
           enabled: true,
@@ -275,45 +376,21 @@ export default {
         },
         {
           enabled: true,
-          name: "Finnish",
-          extreme: true,
-          id: "fi"
-        },
-        {
-          enabled: true,
           name: "Slovenian",
           extreme: false,
           id: "sl"
         },
         {
-          enabled: true,
-          name: "French",
-          extreme: false,
-          id: "fr"
-        },
-        {
-          enabled: true,
+          enabled: false,
           name: "Spanish",
           extreme: false,
           id: "es"
         },
         {
-          enabled: true,
-          name: "Galician",
-          extreme: false,
-          id: "gl"
-        },
-        {
-          enabled: true,
+          enabled: false,
           name: "Swahili",
           extreme: true,
           id: "sw"
-        },
-        {
-          enabled: true,
-          name: "Georgian",
-          extreme: false,
-          id: "ka"
         },
         {
           enabled: true,
@@ -323,21 +400,9 @@ export default {
         },
         {
           enabled: true,
-          name: "German",
-          extreme: false,
-          id: "de"
-        },
-        {
-          enabled: true,
           name: "Tamil",
           extreme: true,
           id: "ta"
-        },
-        {
-          enabled: true,
-          name: "Greek",
-          extreme: true,
-          id: "el"
         },
         {
           enabled: true,
@@ -347,33 +412,15 @@ export default {
         },
         {
           enabled: true,
-          name: "Gujarati",
-          extreme: true,
-          id: "gu"
-        },
-        {
-          enabled: true,
           name: "Thai",
           extreme: true,
           id: "th"
         },
         {
-          enabled: true,
-          name: "Haitian Creole",
-          extreme: true,
-          id: "ht"
-        },
-        {
-          enabled: true,
+          enabled: false,
           name: "Turkish",
           extreme: false,
           id: "tr"
-        },
-        {
-          enabled: true,
-          name: "Hebrew",
-          extreme: true,
-          id: "iw"
         },
         {
           enabled: true,
@@ -383,21 +430,9 @@ export default {
         },
         {
           enabled: true,
-          name: "Hindi",
-          extreme: true,
-          id: "hi"
-        },
-        {
-          enabled: true,
           name: "Urdu",
           extreme: true,
           id: "ur"
-        },
-        {
-          enabled: true,
-          name: "Hungarian",
-          extreme: false,
-          id: "hu"
         },
         {
           enabled: true,
@@ -406,22 +441,10 @@ export default {
           id: "vi"
         },
         {
-          enabled: true,
-          name: "Icelandic",
-          extreme: true,
-          id: "is"
-        },
-        {
-          enabled: true,
+          enabled: false,
           name: "Welsh",
           extreme: true,
           id: "cy"
-        },
-        {
-          enabled: true,
-          name: "Indonesian",
-          extreme: false,
-          id: "id"
         },
         {
           enabled: true,
@@ -439,22 +462,39 @@ export default {
       extreme: false,
       usedLangs: [],
       curLang: null,
-      done: false
+      done: false,
+      showLangs: false,
+      endLang: ""
     };
+  },
+  computed: {
+    orderedLangs: function() {
+      return _.orderBy(this.langs, "name");
+    }
   },
   methods: {
     async runTranslations() {
       this.newLang = this.startLang;
       this.result = this.text;
       for (var i = 0; i < this.level; i++) {
-        await this.sleep(2000)
+        await this.sleep(2000);
         await this.findLang();
         await this.translate();
       }
       this.finalize();
     },
+    selLangs() {
+      this.langs.map(lang => {
+        lang.enabled = true;
+      });
+    },
+    deselLangs() {
+      this.langs.map(lang => {
+        lang.enabled = false;
+      });
+    },
     reRun() {
-      this.done = false
+      this.done = false;
       this.text = this.result;
       this.runTranslations();
     },
