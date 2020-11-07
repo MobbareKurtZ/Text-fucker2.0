@@ -29,7 +29,7 @@
                 </section>
             </section>
             <section class="settings">
-                <button @click="runTranslations()">Floop</button>
+                <button :disabled="startLang == '' || endLang == ''" @click="runTranslations()">Floop</button>
                 <h4>Floop level: {{this.level}}</h4>
                 <div class="slider-container">
                     <input v-model="level" type="range" min="1" max="20" class="slider" />
