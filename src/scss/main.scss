@@ -56,15 +56,6 @@
                 margin: .5rem;
             }
 
-            textarea {
-                resize: none;
-                height: 100px;
-                width: 70%;
-                border-radius: 10px;
-                outline: none;
-                padding: 0.5rem;
-            }
-
             .slider-container {
                 width: 50%;
                 margin: 0.6rem;
@@ -108,21 +99,34 @@
             }
         }
 
-        .result {
-            margin-top: 2rem;
+        .texts {
             display: flex;
-            flex-direction: column;
-            width: 70%;
-            @extend %center;
+            width: 100%;
+            position: relative;
 
-            textarea {
-                resize: none;
-                height: 100px;
-                width: 70%;
-                border-radius: 10px;
-                outline: none;
-                padding: 0.5rem;
+            h3 {
+                position: absolute;
+                top: -5px;
+                margin: 0;
             }
+
+            .result, .input {
+                margin-top: 2rem;
+                display: flex;
+                flex-direction: column;
+                width: 90%;
+                @extend %center;
+
+                textarea {
+                    resize: none;
+                    min-height: 300px;
+                    width: 80%;
+                    border-radius: 10px;
+                    outline: none;
+                    padding: 0.5rem;
+                }
+            }
+
         }
 
         .overlay {
