@@ -3,29 +3,26 @@
     <div class="container">
         <h1>TEXT FLOOPER</h1>
         <h3>Floop your text up</h3>
-        <div v-if="this.state == 'lang'">
-            <select v-model="startLang">
-                <option disabled value>Choose input language</option>
-                <option :value="'sv'">Swedish</option>
-                <option :value="'en'">English</option>
-                <option v-for="lang in langs" :key="lang.id" :value="lang.id">{{lang.name}}</option>
-            </select>
-            <select v-model="endLang">
-                <option disabled value>Choose output language</option>
-                <option :value="'sv'">Swedish</option>
-                <option :value="'en'">English</option>
-                <option v-for="lang in langs" :key="lang.id" :value="lang.id">{{lang.name}}</option>
-            </select>
-            <button v-if='startLang != "" && endLang != ""' @click="state = 'text'">Select</button>
-        </div>
-        <div v-if="this.state == 'text'">
+        <div>
             <section class="texts">
                 <section class="input">
                     <h3>INPUT</h3>
-                    <textarea placeholder="Text to be flooped..." v-model="text"></textarea>
+                    <select v-model="startLang">
+                        <option disabled value>Choose input language</option>
+                        <option :value="'sv'">Swedish</option>
+                        <option :value="'en'">English</option>
+                        <option v-for="lang in langs" :key="lang.id" :value="lang.id">{{lang.name}}</option>
+                    </select>
+                    <textarea :placeholder="startLang!=''? 'Text to be flooped...' : 'Pick input language first'" :disabled="startLang == ''" v-model="text"></textarea>
                 </section>
                 <section class="result">
                     <h3>OUTPUT</h3>
+                    <select v-model="endLang">
+                        <option disabled value>Choose output language</option>
+                        <option :value="'sv'">Swedish</option>
+                        <option :value="'en'">English</option>
+                        <option v-for="lang in langs" :key="lang.id" :value="lang.id">{{lang.name}}</option>
+                    </select>
                     <h4 v-if="this.curLang">{{this.curLang.name}}</h4>
                     <textarea placeholder="Flooped text..." readonly v-model="this.result"></textarea>
                     <button v-if="this.done" @click="reRun()">Needs moar floop!</button>
@@ -467,11 +464,6 @@ export default {
             showLangs: false,
             endLang: ""
         };
-    },
-    computed: {
-        orderedLangs: function () {
-            return _.orderBy(this.langs, "name");
-        }
     },
     methods: {
         async runTranslations() {

@@ -5,6 +5,8 @@ import VueAxios from 'vue-axios'
 
 Vue.use(VueAxios, axios)
 
+Vue.config.devtools = true;
+
 Vue.config.productionTip = false
 
 new Vue({
